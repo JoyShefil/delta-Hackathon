@@ -3,6 +3,7 @@ package com.example.deltahackathon;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -12,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -50,17 +52,18 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements LocationListener {
     LocationManager locationManager;
     private TextToSpeech TTS;
-    String cityName,forError;
+    String cityName;
     String countryName;
     Button usingLocation,enteredManually,enteredGetWeather;
     EditText cityNameEntered;
     EditText countryNameEntered;
     TextView mDescription,mSpeed,mHumidity,mPressure,mTemp,MinMax,mLocationDisplay,LatLon;
-    LinearLayout l1;
+    LinearLayout l1,l2,l3;
     RelativeLayout r1;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     FloatingActionButton  fAB;
+    Boolean check = false;
 
 
     float pressure;
@@ -77,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       // cityName = "hi";
 
         grantPermission();
 
@@ -97,6 +99,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mLocationDisplay = findViewById(R.id.locationDisplay);
         LatLon = findViewById(R.id.LatLon);
         fAB = findViewById(R.id.floatingActionButton);
+        l2 = findViewById(R.id.l2);
+        l3 = findViewById(R.id.l3);
+
+
 
         TTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
@@ -116,27 +122,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
 
-
-        //cityName = "hi";
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         cityName = sharedPreferences.getString("cityName",null);
-        Log.d("responce1",cityName);
 
-
-      /*  if (cityName.equals("hi")){
-            cityName = sharedPreferences.getString("cityName",null);
-        } */
-
-
-
-
-
-
-        //declare
         checkLocationIsEnabled();
         getLocation();
-        //getWeatherDetails();
 
 
         enteredManually.setOnClickListener(new View.OnClickListener() {
@@ -152,13 +142,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         usingLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //grantPermission();
-                //checkLocationIsEnabled();
-                //getLocation();
+
+
+                if (!check){
+                    Log.v("responce","response");
+                } else {
+
                     getWeatherDetails();
                     // setTextsToView();
                     l1.setVisibility(View.INVISIBLE);
                     r1.setVisibility(View.VISIBLE);
+                }
 
 
             }
@@ -186,8 +180,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
 
-       //checkLocationIsEnabled();
-        //getLocation();
+
     }
 
     public void getWeatherDetails() {
@@ -315,9 +308,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         MinMax.setText(decimalFormat.format(temp_min) + " c/"+ decimalFormat.format(temp_max)+" c");
         mLocationDisplay.setText(cityNameOf);
         LatLon.setText(decimalFormat.format(lat) + "/"+ decimalFormat.format(lon));
-       // Log.d("responce",description);
-
-
 
 
     }
@@ -334,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             editor = sharedPreferences.edit();
             editor.putString("cityName",cityName);
             editor.apply();
+            check = true;
             Log.d("responce",sharedPreferences.getString("cityName",null));
 
 
@@ -372,9 +363,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
     private void speak(){
 
-        String text = "Weather at " + cityName + "is" + description + "and Temperature is" + temp + "degree celsius"  ;
+        String text = "Weather at " + cityName + "is" + description + "and Temperature is" + decimalFormat.format(temp) + "degree celsius"  ;
         TTS.setPitch(2.0f);
-        TTS.setSpeechRate(1.1f);
+        TTS.setSpeechRate(0.8f);
 
         TTS.speak(text,TextToSpeech.QUEUE_FLUSH,null);
     }
